@@ -1,4 +1,4 @@
-# Miscellaneous cheatsheets
+# Miscellaneous Cheatsheets
 
 ## ddclient.conf
 

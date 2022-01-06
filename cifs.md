@@ -1,4 +1,4 @@
-# CIFS cheatsheet
+# CIFS Cheatsheet
 
 Mount CIFS/smb/samba at boot:
 
