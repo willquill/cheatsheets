@@ -428,7 +428,3 @@ This replaces homelab.city with will.mx
 Find text in a file ([source](https://stackoverflow.com/questions/16956810/how-do-i-find-all-files-containing-specific-text-on-linux))
 
 `grep -rnw '/var/www/html/' -e 'punkwolf'`
-
-### Putty logging
-
-`&H-&Y-&M-&D-&T.log`
