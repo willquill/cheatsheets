@@ -1,6 +1,6 @@
 # Backup Cheatsheet
 
-to Synology
+## Synology
 
 Follow [this](https://www.therapeuticshub.com/rsync-backup-synology/) guide to create the rsync user and SSH keys.
 
@@ -10,7 +10,7 @@ Follow [this](https://www.therapeuticshub.com/rsync-backup-synology/) guide to c
 
 ## Backup up with cron
 
-Helpful link: https://arewasfasuoy.wordpress.com/2020/08/22/automated-backups-using-rsync-cron/
+Helpful cron link [here](https://arewasfasuoy.wordpress.com/2020/08/22/automated-backups-using-rsync-cron/).
 
 Structure of cron:
 
