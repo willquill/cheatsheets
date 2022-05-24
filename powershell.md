@@ -30,7 +30,7 @@ Start WinRM service
 
 `Start-Service WinRM`
 
-#nable the local account token filter policy
+Enable the local account token filter policy
 
 `Set-ItemProperty –Path HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System –Name LocalAccountTokenFilterPolicy –Value 1 -Type DWord`
 
@@ -74,7 +74,6 @@ Set DNS to existing domain controller first if joining domain
 `Get-DNSClientServerAddress –InterfaceIndex 2`
 
 `Set-DNSClientServerAddress –InterfaceIndex 2 -ServerAddresses ("10.1.20.12","10.1.20.11")`
-
 
 ### Install AD Domain Services
 
@@ -125,10 +124,9 @@ Allow Server Manager remotely
 
 `Import-PSSession -Session $session -module ActiveDirectory`
 
-## Troubleshooting:
+## Troubleshooting
 
 `winrm set winrm/config/client @{TrustedHosts="10.1.20.40"}`
-
 
 `dcpromo.exe /unattend /NewDomain:paw /ReplicaOrNewDomain:paw /NewDomainDNSName:paw.blue /DomainLevel:4 /ForestLevel:4 /SafeModeAdminPassword:<whateveryourpasswordis>`
 
