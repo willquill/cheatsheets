@@ -159,6 +159,24 @@ tank/plexdata   atime                 off                    inherited from tank
 tank/plexdata   aclinherit            passthrough            inherited from tank
 ```
 
+## NFS
+
+[Source](https://www.hiroom2.com/2016/05/18/ubuntu-16-04-share-zfs-storage-via-nfs-smb/)
+
+`sudo apt-get install -y nfs-kernel-server`
+
+`sudo zfs set sharenfs="rw=@10.1.20.20/32" tank/ds-lyra`
+
+`sudo zfs share -a`
+
+Confirm with this:
+
+`showmount -e localhost`
+
+Export list for localhost:
+
+`/tank/ds-lyra 10.1.20.20/32`
+
 ## Miscellaneous Notes
 
 ### Create Nextcloud database pool

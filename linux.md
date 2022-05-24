@@ -160,7 +160,9 @@ Do all of the above all at once
 
 ## Networking
 
-### Create Bond (LACP) interface in Debian
+### Bond Interfaces
+
+#### Debian Bond
 
 `sudo vi /etc/network/interfaces`
 
@@ -199,7 +201,43 @@ bond-updelay 200
 
 `bond-master bond0`
 
-### Set up bond interface in Ubuntu 18.04
+#### Ubuntu 16.04 Bond
+
+`sudo ip link show`
+
+`sudo nano /etc/network/interfaces`
+
+```sh
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The aggregated link
+auto bond0
+iface bond0 inet static
+        address 10.1.20.20
+        gateway 10.1.20.1
+        netmask 255.255.255.0
+        dns-nameservers 10.1.20.1
+        dns-search paw.blue
+        bond-mode 4
+        bond-miimon 100
+        bond-downdelay 50
+        bond-updelay 50
+        bond-lacp-rate fast
+        bond-slaves enp1s0f0 enp1s0f1
+        bond-xmit_hash_policy 1
+
+auto enp1s0f0
+iface enp1s0f0 inet manual
+bond-master bond0
+
+auto enp1s0f1
+iface enp1s0f1 inet manual
+bond-master bond0
+```
+
+#### Ubuntu 18.04 Bond
 
 Source: https://cli.pignat.org/server-18.04-network-bond.html
 
@@ -241,6 +279,90 @@ network:
 Update the network interface with the following:
 
 `cloud-init clean -reboot`
+
+### Network interface troubleshooting
+
+You can do the following to remove an IP from an interface. For example, I accidentally assigned 10.1.20.24/24 to enp1s0f1 but I want that IP on enp1s0f0 instead:
+
+`sudo ip address del 10.1.20.20/24 dev enp1s0f1`
+
+You can do the following to restart an interface:
+
+`sudo ip link set enp1s0f1 down && sudo ip link set enp1s0f1 up`
+
+Fix 127.0.0.53 being in resolv.conf:
+
+`sudo rm -f /etc/resolv.conf`
+
+## Samba
+
+`sudo apt install samba-common-bin samba samba-common python-glade2 system-config-samba -y`
+
+`sudo mv /etc/samba/smb.conf /etc/samba/smb.conf.bak`
+
+`sudo nano /etc/samba/smb.conf`
+
+```sh
+#============================ Global definition ================================
+
+[global]
+workgroup = LYON
+server string = Samba Server %v
+netbios name = lyra
+security = user
+map to guest = bad user
+name resolve order = bcast host
+dns proxy = no
+bind interfaces only = yes
+
+#============================ Share Definitions ==============================
+
+[User]
+   path = /home/nova
+   browsable = yes
+   read only = no
+   directory mask = 0700
+   create mask = 0700
+   valid users = will nova
+
+[Movies]
+   path = /tank/media/movies
+   browsable = yes
+   read only = no
+   directory mask = 0775
+   create mask = 0775
+   valid users = will nova
+
+[TV]
+   path = /storage/media/tv
+   browsable = yes
+   read only = no
+   directory mask = 0775
+   create mask = 0775
+   valid users = will nova
+
+[Data]
+   path = /tank/data
+   browsable = yes
+   read only = no
+   directory mask = 0700
+   create mask = 0700
+   valid users = will
+
+[Backups]
+   path = /storage/backup
+   browsable = yes
+   read only = no
+   directory mask = 0777
+   create mask = 0777
+   valid users = will
+```
+
+Then do this after doing that file:
+
+`sudo smbpasswd -a will`
+
+`sudo service smbd restart`
 
 ## SNMP
 
