@@ -239,7 +239,7 @@ bond-master bond0
 
 #### Ubuntu 18.04 Bond
 
-Source: https://cli.pignat.org/server-18.04-network-bond.html
+[Source](https://cli.pignat.org/server-18.04-network-bond.html)
 
 `sudo ip link show`
 
