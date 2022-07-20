@@ -30,6 +30,10 @@ This moves the first 91 files from current directory to `/mnt/media/movies`
 
 `find . -maxdepth 1 -type f |head -91|xargs cp -t "/mnt/media/movies"`
 
+Find and remove files larger than 16 GB
+
+`find . -size +16G -delete`
+
 ## `du`
 
 Check size of current directory
