@@ -15,7 +15,7 @@ On Ubuntu client that will mount it:
 `sudo vim /etc/fstab`
 
 ```fstab
-10.1.20.20:/tank/security /storage nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0`
+10.1.20.20:/tank/security /storage nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
 ```
 
 ## NFS Debugging ([source](https://kerneltalks.com/config/nfs-logs-in-linux/))

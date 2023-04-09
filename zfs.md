@@ -79,6 +79,27 @@ zpool create -f tank mirror 8T-JEH71NBN 8T-JEHEM2TN
 sudo udevadm trigger
 ```
 
+### Create pool with two mirrored vdevs
+
+This particular pool has 3x14TB and 1x12TB. It will have a capacity of 24 TB. Later, I can replace the 12TB with a 14TB, and it will have a capacity of 28TB.
+
+```sh
+sudo vim /etc/zfs/vdev_id.conf
+alias 14T-WDC-9KG38U5L       ata-WDC_WUH721414ALE6L4_9KG38U5L
+alias 14T-WDC-9KG81HRL       ata-WDC_WUH721414ALE6L4_9KG81HRL
+alias 14T-WDC-9RGG5ZDC       ata-WDC_WUH721414ALE6L4_9RGG5ZDC
+alias 12T-WDC-5PGHSZJC       ata-WDC_WD120EMAZ-11BLFA0_5PGHSZJC
+
+sudo udevadm trigger
+
+sudo zpool create -f tank -o ashift=12 mirror 14T-WDC-9KG38U5L 14T-WDC-9KG81HRL mirror 14T-WDC-9RGG5ZDC 12T-WDC-5PGHSZJC 
+```
+
+And then turn atime off and set the compression for the new pool:
+
+```sh
+sudo zfs set atime=off compression=lz4 tank
+```
 
 ### Replacing drive in pool
 
