@@ -286,3 +286,54 @@ config:
 
 errors: No known data errors
 ```
+
+## Troubleshooting
+
+### Unrecoverable error
+
+Sample output of `sudo zpool status`:
+
+```
+  pool: tank
+ state: ONLINE
+status: One or more devices has experienced an unrecoverable error.  An
+        attempt was made to correct the error.  Applications are unaffected.
+action: Determine if the device needs to be replaced, and clear the errors
+        using 'zpool clear' or replace the device with 'zpool replace'.
+   see: https://openzfs.github.io/openzfs-docs/msg/ZFS-8000-9P
+  scan: scrub repaired 3.50M in 19:00:21 with 0 errors on Sun Jul 14 19:24:35 2024
+config:
+
+        NAME              STATE     READ WRITE CKSUM
+        tank              ONLINE       0     0     0
+          raidz1-0        ONLINE       0     0     0
+            12T-5PGJ4A0D  ONLINE       0     0     0
+            12T-Z2J26EBT  ONLINE       0     0     0
+            12T-5PGHSZJC  ONLINE       0     0     0
+          raidz1-1        ONLINE       0     0     0
+            14T-9KG38U5L  ONLINE       0     0     0
+            14T-9KG81HRL  ONLINE       0     0     0
+            14T-9RGG5ZDC  ONLINE       7     0     5
+
+errors: No known data errors
+```
+
+First, clear the errors. This will clear the error counters. Check the status again afterward with zpool status to see if the errors return.
+
+```sh
+sudo zpool clear tank
+```
+
+Initiate a scrub to ensure data integrity and attempt to repair any additional errors:
+
+```sh
+sudo zpool scrub tank
+```
+
+After the scrub completes, check the status again with zpool status.
+
+To check integrity of the disk, install smartmontools and execute:
+
+```sh
+sudo smartctl -a /dev/disk/by-id/your-disk-id
+```
