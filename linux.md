@@ -102,6 +102,30 @@ To view only the processes owned by a specific user, use the following command:
 
 `top -U [USERNAME]`
 
+## File Editing
+
+### Add multiple lines
+
+Without root:
+
+```sh
+cat >/etc/systemd/system/ssh.socket.d/listen.conf <<EOF
+[Socket]
+ListenStream=
+ListenStream=2222
+EOF
+```
+
+With root:
+
+```sh
+sudo tee -a /etc/systemd/system/ssh.socket.d/listen.conf > /dev/null <<EOF
+[Socket]
+ListenStream=
+ListenStream=2222
+EOF
+```
+
 ## SSH
 
 ### Generating ECDSA key
@@ -126,6 +150,38 @@ chmod 700 ~/.ssh
 chmod 600 ~/.ssh/authorized_keys
 chmod 600 ~/.ssh/id_rsa
 chmod 644 ~/.ssh/*.pub
+```
+
+### Changing SSH port
+
+#### New Way
+
+Source is [here](https://askubuntu.com/questions/1439461/ssh-default-port-not-changing-ubuntu-22-10-and-later).
+
+If you don't add that first `ListenStream=` line, then it will continue to listen on port 22.
+
+```sh
+sudo mkdir -p /etc/systemd/system/ssh.socket.d
+```
+
+```sh
+sudo tee -a /etc/systemd/system/ssh.socket.d/listen.conf > /dev/null <<EOF
+[Socket]
+ListenStream=
+ListenStream=2222
+EOF
+```
+
+```sh
+sudo systemctl daemon-reload &&\
+  sudo systemctl restart ssh.socket
+```
+
+#### Old Way
+
+```sh
+sudo sed -i 's/^#Port 22/Port 2222/' /etc/ssh/sshd_config &&\
+  sudo systemctl restart ssh
 ```
 
 ### Disable root SSH login
