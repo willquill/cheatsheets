@@ -189,6 +189,37 @@ There's 9G free on the pvs/vgs so I found this command on askbuntu.com:
 
 Now I'm finally using the entire 32GB for the Ubuntu VM.
 
+## LVM Management
+
+Here's a [good cheatsheet](https://cheatography.com/leszekt/cheat-sheets/linux-logical-volume-manager-lvm/).
+
+### Resizing logical volumes
+
+First, an explanation:
+
+- When you originally installed Proxmox, two LVM logical volumes were created: `/dev/pve/root` and `/dev/pve/data`
+- `/dev/pve/root` is LVM and the partition can be grown or shrunk
+- `/dev/pve/data` is LVM-thin and the partition _can only be grown but not shrunk_
+- Only LVM-thin partitions can take snapshots, so this is used for VMs and containers
+- So the partition with the root directory underlying the Proxmox host itself can be resized at will, and the partition that stores your VMs and containers can only grow
+
+Consider this scenario:
+
+- You have a lot of free space on `/dev/pve/root` but you're running out of room for your VM/container store on `/dev/pve/data`
+- Therefore, you need to *shrink* `/dev/pve/root` and *grow* `/dev/pve/data`
+
+Here's how you do that:
+
+0. Have a backup in case you have to reinstall Proxmox and all VMs/containers
+1. I prefer to boot into a live Ubuntu desktop from a USB (using [Ventoy](https://ventoy.net)) because there's a bug in the current version of Gparted that prevents this from working.
+2. Open the terminal.
+3. `sudo lvdisplay` to view LV names and paths
+4. `sudo lvreduce --resizefs -L 18G /dev/pve/root` to reduce the _file system within the logical volume_ to only 18G in size (via the --resizefs option) followed by reducing the logical volume itself from a larger size in order to free up space. **Select whatever size is appropriate for your situation as 18G may be too little or too much**
+5. `sudo lvresize -l +100%FREE /dev/pve/data` to resize the LVM-thin `data` logical volume used for VMs/containers to use all of the free space available within the volume group
+6. Reboot Proxmox
+
+You should now have a smaller `root` volume and a larger `data` volume, allocating more disk space to VM and container storage.
+
 ## Troubleshooting
 
 ### No space left on device #1
