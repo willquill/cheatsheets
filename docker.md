@@ -24,7 +24,7 @@ Remove obsolete images
 
 Update all images ([source](http://www.googlinux.com/update-all-docker-images/index.html))
 
-`docker images |grep -v REPOSITORY|awk '{print $1}'|xargs -L1 docker pull `
+`docker images |grep -v REPOSITORY|awk '{print $1}'|xargs -L1 docker pull`
 
 ## Docker Compose Commands
 
@@ -56,6 +56,12 @@ alias dclogs='docker compose logs -tf --tail="50"'
 ## Create a docker volume of a CIFS share ([source](https://stackoverflow.com/questions/50239386/docker-add-network-drive-as-volume-on-windows))
 
 `docker volume create --driver local --opt type=cifs --opt device=//10.2.200.10/storage --opt o=user=youruser,password=yourpassword storage`
+
+## Space Clearing Methods
+
+```sh
+docker system prune --all --volumes --force
+```
 
 ## More Commands ([source](https://www.reddit.com/r/selfhosted/comments/g3p37k/25_basic_docker_commands_for_beginners/fntnfr9/?context=1))
 
