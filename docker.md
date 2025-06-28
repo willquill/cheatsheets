@@ -26,6 +26,12 @@ Update all images ([source](http://www.googlinux.com/update-all-docker-images/in
 
 `docker images |grep -v REPOSITORY|awk '{print $1}'|xargs -L1 docker pull`
 
+Find which containers are using a docker network:
+
+```sh
+docker network inspect authelia -f "{{json .Containers }}"
+```
+
 ## Docker Compose Commands
 
 Pull latest images
