@@ -19,6 +19,73 @@ And then in Datacenter > Storage > Add:
 
 ## Containers
 
+### Create LXC (single)
+
+```sh
+pct create 101 /var/lib/vz/template/cache/rockylinux-8-default_20210929_amd64.tar.xz \
+    --arch amd64 \
+    --ostype centos \
+    --hostname k8m01 \
+    --cores 4 \
+    --memory 4096 \
+    --swap 0 \
+    --storage local-lvm \
+    --password $password \
+    --ssh-public-keys /root/.ssh/k8s_rsa.pub \
+    --net0 name=eth0,bridge=vmbr0,firewall=0,gw=10.1.20.1,ip=10.1.20.11/24,type=veth \
+    --unprivileged 1 \
+    --onboot 1 \
+    --features nesting=1,keyctl=1
+```
+
+### Create LXC (multiple)
+
+This will create two nodes as follows:
+
+- id 102, k8m01, 10.1.20.11
+- id 103, k8m02, 10.1.20.12
+
+```sh
+for ((n=102,host=1;n<=103;n++,host++))
+do
+  pct create $n /var/lib/vz/template/cache/rockylinux-8-default_20210929_amd64.tar.xz \
+    --arch amd64 \
+    --ostype centos \
+    --hostname k8m0$host \
+    --cores 4 \
+    --memory 4096 \
+    --swap 0 \
+    --storage local-lvm \
+    --password $password \
+    --ssh-public-keys /root/.ssh/k8s_rsa.pub \
+    --net0 name=eth0,bridge=vmbr0,firewall=0,gw=10.1.20.1,ip=10.1.20.1$host/24,type=veth \
+    --unprivileged 1 \
+    --onboot 1 \
+    --features nesting=1,keyctl=1 &&\
+    pct start $n &&\
+    sleep 10 &&\
+    pct resize $n rootfs +8G &&\
+    pct exec $n -- bash -c\
+        "sudo dnf -y update &&\
+        dnf -y install vim git wget epel-release openssh-server &&\
+        systemctl start sshd &&\
+        systemctl enable sshd &&\
+        git clone https://github.com/alacritty/alacritty.git &&\
+        cd alacritty &&\
+        tic -xe alacritty,alacritty-direct extra/alacritty.info"
+done
+```
+
+### Execute within a container
+
+```sh
+pct exec 102 -- bash -c\
+    "dnf -y update &&\
+    dnf -y install vim git wget epel-release openssh-server &&\
+    systemctl start sshd &&\
+    systemctl enable sshd"
+```
+
 ### Move container from one host to another
 
 1. Backup the container.
@@ -32,6 +99,10 @@ Import qemu VM from backup
 `qmrestore --storage local-zfs /mnt/willstuff/dump/vzdump-qemu-135-2017_07_22-13_24_43.vma.lzo 135`
 
 ### Shrink or resize container
+
+```sh
+pct resize 102 rootfs +8G
+```
 
 Can confirm that the same error occurs with LVM backed containers. Manual (offline) resize works fine -
 
@@ -224,7 +295,7 @@ You should now have a smaller `root` volume and a larger `data` volume, allocati
 
 ### No space left on device #1
 
-SOLVE "Failed to add /run/systemd/  ask-password to directory watch: No space left on device"
+SOLVE "Failed to add /run/systemd/ ask-password to directory watch: No space left on device"
 
 https://proxmox-openvz.blogspot.com/2015/06/increase-open-file-limit-number-of-open.html
 
